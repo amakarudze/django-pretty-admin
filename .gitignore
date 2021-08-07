@@ -1,2 +1,10 @@
 .venv
 .idea
+db.sqlite3
+geckodriver.log
+__pycache__
+*.pyc
+*.log
+.coverage
+.env
+htmlcov/
