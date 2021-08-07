@@ -35,11 +35,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: hunter2
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
         ports:
           - 5432:5432
       mysql:
@@ -48,11 +44,7 @@ jobs:
           MYSQL_ROOT_PASSWORD: hunter2
         ports:
           - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=3
+        options: --health-cmd="mysqladmin ping" --health-interval 10s --health-timeout 5s --health-retries 3
     steps:
       - uses: actions/checkout@v2
 
@@ -65,18 +57,15 @@ jobs:
         run: sudo apt-get install libpq-dev
 
       - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install braintree mysqlclient apprise
+      - name: Run Tests
+        env:
+          DB: ${{ matrix.db }}
+          DB_HOST: 127.0.0.1
+          DB_PORT: ${{ matrix.db_port }}
+          DB_PASSWORD: hunter2
           run: |
-            python -m pip install --upgrade pip
-            pip install -r requirements.txt
-            pip install braintree mysqlclient apprise
-          - name: Run Tests
-            env:
-              DB: ${{ matrix.db }}
-              DB_HOST: 127.0.0.1
-              DB_PORT: ${{ matrix.db_port }}
-              DB_PASSWORD: hunter2
-            run: |
-              python manage.py test
-
-    #  after_success:
-       # - bash <(curl -s https://codecov.io/bash) -t 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
+            python manage.py test
